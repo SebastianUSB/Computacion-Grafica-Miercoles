@@ -45,7 +45,44 @@ function startScene() {
     const axesHelper = new THREE.AxesHelper( 5 );
     scene.add( axesHelper );    
 
+    //Create the Light
+    const pointLight = new THREE.PointLight( 0xff0000, 1, 100 );
+    pointLight.position.set( 0, 5, 0 );
+    const pointLight2 = new THREE.PointLight( 0xffffff, 1, 100 );
+    pointLight2.position.set( 10, 0, 0 );
+    const pointLight3 = new THREE.PointLight( 0xff00ff, 1, 100 );
+    pointLight3.position.set( -10, 0, 0 );
+    scene.add( pointLight, pointLight2, pointLight3 );
+    createLight("ambient")
+
     animate();
+}
+
+function createLight(typeLight){
+    var light;
+    switch(typeLight){
+        case "ambient":
+            light = new THREE.AmbientLight( 0x404040 ); // soft white light
+            break;
+        case "pointLight":
+            light = new THREE.PointLight( 0xff00ff, 1, 100 );
+            light.position.set( 0, 5, 0 );
+
+            const sphereSize = 1;
+            const pointLightHelper = new THREE.PointLightHelper( light, sphereSize );
+            scene.add( pointLightHelper); 
+            break;
+        case "spotLight":
+            light = new THREE.SpotLight( 0xffffff );
+            light.position.set( 10, 10, 10 );
+
+            const spotLightHelper = new THREE.SpotLightHelper( light );
+            scene.add( spotLightHelper );
+            break;
+        default:
+            return;
+    }
+    scene.add( light );
 }
 
 function addShape(shapeType){
@@ -53,18 +90,34 @@ function addShape(shapeType){
 
     switch (shapeType) {
         case 'cube':
+            const texture = new THREE.TextureLoader().load('../src/img/animals/face1.jpg');
+
+            var materialCube = [new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face1.jpg')}),
+                                new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face2.png')}),
+                                new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face3.jpg')}),
+                                new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face4.jpg')}),
+                                new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face5.png')}),
+                                new THREE.MeshBasicMaterial ({map:new THREE.TextureLoader().load('../src/img/animals/face6.jpg')})];
+
             geometry = new THREE.BoxGeometry(1, 1, 1);
-            material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe:true });
-            mesh = new THREE.Mesh(geometry, material);
+            material = new THREE.MeshBasicMaterial({ color: 0xffffff, 
+                                                     transparent:true,
+                                                     opacity: 1,
+                                                     side: THREE.DoubleSide,
+                                                     map: texture,
+                                                     wireframe:false});
+            mesh = new THREE.Mesh(geometry, materialCube);
             break;
         case 'torus':
             geometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
-            material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe:true });
+            material = new THREE.MeshStandardMaterial({ color: 0xff0000, 
+                                                        roughness:0.5, 
+                                                        metalness:0.5 });
             mesh = new THREE.Mesh(geometry, material);
             break;
         case 'cone':
             geometry = new THREE.ConeGeometry(0.5, 1, 16);
-            material = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe:true });
+            material = new THREE.MeshPhongMaterial({ color: 0x0000ff, specular:0xff0000, shininess:0});
             mesh = new THREE.Mesh(geometry, material);
             break;
         default:
