@@ -3,6 +3,10 @@
    Last Modification: 26/08/2023 
 */
 
+//Pato Cargador
+//Sounds (backgroud(ambient), takeElements, Win, Lost)
+//1 Pantalla Win, Lost
+
 //Creation elements
 var scene = null,
     camera = null,
