@@ -32,7 +32,7 @@ function startScene() {
 
     //Orbit controls
     controls = new THREE.OrbitControls(camera,renderer.domElement);
-    camera.position.set(0,0,0);
+    camera.position.set(18,10,0);
     controls.update();
 
     camera.position.z = 20;
@@ -48,10 +48,10 @@ function startScene() {
     //const light = new THREE.AmbientLight( 0xFFFFFF ); // soft white light
     //scene.add( light );
 
-    const pointLight = new THREE.PointLight( 0xff0000, 1, 2 );
-    pointLight.position.set( -1.5, 0.5, 0.5 );
-    const pointLight2 = new THREE.PointLight( 0xEDEEB5, 1, 100 );
-    pointLight2.position.set( 2, 5, 2 );
+    const pointLight = new THREE.PointLight( 0xff0000, 4, 5);
+    pointLight.position.set( -9, 2, 3 );
+    const pointLight2 = new THREE.PointLight( 0xEDEEB5, 1.2, 100 );
+    pointLight2.position.set( 8, 18, 8 );
     scene.add(pointLight, pointLight2)
 
     //const sphereSize = 1;
@@ -60,13 +60,19 @@ function startScene() {
 
     animate();
     // Escenario
-    loadModel_objMtl("../src/models/obj_mtl/escenario/", "escenario.obj", "escenario.mtl");
+    loadModel_objMtl("../src/models/obj_mtl/escenario/", "escenario.obj", "escenario.mtl", 5, 0);
 
     // Human Model
-    loadModel_objMtl("../src/models/obj_mtl/personaje/", "personaje.obj", "personaje.mtl");
+    loadModel_objMtl("../src/models/obj_mtl/personaje/", "personaje.obj", "personaje.mtl", 3, 0.6);
 
     // GLTF Model
     loadGltf("../src/models/gltf/","Duck.gltf");
+
+    //Gift
+    createCollectibles()
+
+    //
+    stateGame('')
 }
 
 function animate(){
@@ -83,7 +89,7 @@ function onWindowResize(){
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-function loadModel_objMtl(Path, nameObj, nameMTL){
+function loadModel_objMtl(Path, nameObj, nameMTL, size, position){
     //Load MTL
     var mtlLoader = new THREE.MTLLoader();
     mtlLoader.setResourcePath(Path);
@@ -97,8 +103,8 @@ function loadModel_objMtl(Path, nameObj, nameMTL){
         objLoader.setMaterials(materials);
         objLoader.load(nameObj, function  (object){
             scene.add(object)
-            
-            //object.scale.set(5,5,5);
+            object.scale.set(size,size,size);
+            object.position.set(0,position,0);
         });
     });
 }
@@ -128,7 +134,7 @@ function loadGltf(path, nameGltfGet) {
             gltf.cameras; // Array<THREE.Camera>
             gltf.asset; // Object
 
-            gltf.scene.position.set(1, 0, 1);
+            gltf.scene.position.set(2, 0.9, 2);
             gltf.scene.rotation.set(0,1,0);
 
         },
@@ -145,5 +151,41 @@ function loadGltf(path, nameGltfGet) {
 
         }
     );
+}
+
+function createCollectibles(){
+
+    const min = -4.8;
+    const max = 6;
+
+    for( var i=0; i<5; i++){
+        var posx = Math.floor(Math.random() * (max - min + 1) + min);
+        var posy = Math.floor(Math.random() * (max - min + 1) + min);
+        const texture = new THREE.TextureLoader().load('../src/img/paperGift.jpg')
+
+        const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, map:texture});
+        const cube = new THREE.Mesh( geometry, material ); 
+
+        cube.position.set(posx,1.5,posy);
+        scene.add( cube );
+    }
+    
+}
+
+function stateGame(state){
+    switch(state){
+        case 'win':
+            document.getElementById("winPage").style.display = "block";
+            break;
+        
+        case 'lose':
+            document.getElementById("losePage").style.display = "block";
+            break;
+        default:
+            document.getElementById("winPage").style.display = "none";
+            document.getElementById("losePage").style.display = "none";
+            break;
+}
 }
     
