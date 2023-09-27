@@ -64,6 +64,9 @@ function startScene() {
 
     // Human Model
     loadModel_objMtl("../src/models/obj_mtl/personaje/", "personaje.obj", "personaje.mtl");
+
+    // GLTF Model
+    loadGLTF("../src/models/gltf/Duck.gltf");
 }
 
 function animate(){
@@ -98,7 +101,17 @@ function loadModel_objMtl(Path, nameObj, nameMTL){
             //object.scale.set(5,5,5);
         });
     });
+}
 
-    
+function loadGLTF(Path){
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load(Path, function (gltf) {
+        const model = gltf.scene;
+        scene.add(model);
+
+        model.position.set(1, 0, 1);
+        model.scale.set(1, 1, 1);
+        model.rotation.set(0, 1, 0);
+    });
 }
     
