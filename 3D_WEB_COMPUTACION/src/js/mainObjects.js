@@ -66,7 +66,7 @@ function startScene() {
     loadModel_objMtl("../src/models/obj_mtl/personaje/", "personaje.obj", "personaje.mtl");
 
     // GLTF Model
-    loadGLTF("../src/models/gltf/Duck.gltf");
+    loadGltf("../src/models/gltf/","Duck.gltf");
 }
 
 function animate(){
@@ -103,15 +103,47 @@ function loadModel_objMtl(Path, nameObj, nameMTL){
     });
 }
 
-function loadGLTF(Path){
-    const gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load(Path, function (gltf) {
-        const model = gltf.scene;
-        scene.add(model);
+function loadGltf(path, nameGltfGet) {
+    var nameGltf = path + nameGltfGet;
+    // Instantiate a loader
+    const loader = new THREE.GLTFLoader();
 
-        model.position.set(1, 0, 1);
-        model.scale.set(1, 1, 1);
-        model.rotation.set(0, 1, 0);
-    });
+    // Optional: Provide a DRACOLoader instance to decode compressed mesh data
+    const dracoLoader = new THREE.DRACOLoader();
+    dracoLoader.setDecoderPath(path);
+    loader.setDRACOLoader(dracoLoader);
+
+    // Load a glTF resource
+    loader.load(
+        // resource URL
+        nameGltf,
+        // called when the resource is loaded
+        function (gltf) {
+
+            scene.add(gltf.scene);
+
+            gltf.animations; // Array<THREE.AnimationClip>
+            gltf.scene; // THREE.Group
+            gltf.scenes; // Array<THREE.Group>
+            gltf.cameras; // Array<THREE.Camera>
+            gltf.asset; // Object
+
+            gltf.scene.position.set(1, 0, 1);
+            gltf.scene.rotation.set(0,1,0);
+
+        },
+        // called while loading is progressing
+        function (xhr) {
+
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+        },
+        // called when loading has errors
+        function (error) {
+
+            console.log('An error happened');
+
+        }
+    );
 }
     
