@@ -1,17 +1,15 @@
 /* Author: Jhoan Sebastian Ortiz Alvarez
    Date of creation: 20/09/2023
-   Last Modification: 26/08/2023 
+   Last Modification: 3/10/2023 
 */
-
-//Pato Cargador
-//Sounds (backgroud(ambient), takeElements, Win, Lost)
-//1 Pantalla Win, Lost
 
 //Creation elements
 var scene = null,
     camera = null,
     renderer = null,
-    controls = null
+    controls = null,
+    timeLeft = 60,
+    countdownInterval;
 
 const size = 20,
     divisions = 20;
@@ -70,6 +68,8 @@ function startScene() {
 
     //Gift
     createCollectibles()
+
+    startCountdown();
 
     //
     stateGame('')
@@ -188,4 +188,39 @@ function stateGame(state){
             break;
 }
 }
+
+function startCountdown() {
+    countdownInterval = setInterval(function() {
+        timeLeft--;
+        if (timeLeft === 0) {
+            stateGame('lose');
+            stopCountdown();
+            playLoseSound();
+        } else {
+            updateTimerDisplay();
+        }
+    }, 1000);
+}
+
+function stopCountdown() {
+    clearInterval(countdownInterval);
+}
+
+function updateTimerDisplay() {
+    // Updates the HTML element that shows the remaining time
+    document.querySelector('#timer').textContent = 'Time: ' + timeLeft;
+}
+
+function playLoseSound() {
+    // Pause ambient sound
+    var ambientSound = document.getElementById("ambientSound");
+    if (ambientSound) {
+        ambientSound.pause();
+    }
+
+    // Play the sound of losing
+    var loseSound = new Audio('../src/sounds/lose.mp3');
+    loseSound.play();
+}
+
     
