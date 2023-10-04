@@ -7,12 +7,19 @@
 var scene = null,
     camera = null,
     renderer = null,
-    controls = null,
+    //controls = null,
     timeLeft = 60,
     countdownInterval;
 
 const size = 20,
     divisions = 20;
+
+//Avatar
+var myPlayer =null,
+    myPlayerMesh = null,
+    input ={left:0, right:0, up:0, down:0},
+    rootSpeed = 0.05,
+    speed = 0.5;
 
 function startScene() {
     // Scene, Camera, Renderer
@@ -29,11 +36,12 @@ function startScene() {
     document.body.appendChild( renderer.domElement );
 
     //Orbit controls
-    controls = new THREE.OrbitControls(camera,renderer.domElement);
-    camera.position.set(18,10,0);
-    controls.update();
+    //controls = new THREE.OrbitControls(camera,renderer.domElement);
+    //camera.position.set(0,10,30); 
+    //camera.position.set(18,10,20);
+    //controls.update();
 
-    camera.position.z = 20;
+
 
     //Grid Helper
     const gridHelper = new THREE.GridHelper( size, divisions);
@@ -67,17 +75,22 @@ function startScene() {
     loadGltf("../src/models/gltf/","Duck.gltf");
 
     //Gift
-    createCollectibles()
+    createCollectibles();
 
     startCountdown();
 
     //
-    stateGame('')
+    stateGame('');
+
+    //
+    createPlayer();
 }
 
 function animate(){
     requestAnimationFrame(animate);
-    controls.update();
+    //controls.update();
+    movementPlayer();
+    //myPlayerMesh.position.set(myPlayer.position.x,myPlayer.position.y,myPlayer.position.z);
     renderer.render(scene, camera);
 }
 
@@ -89,7 +102,7 @@ function onWindowResize(){
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-function loadModel_objMtl(Path, nameObj, nameMTL, size, position){
+function loadModel_objMtl(Path, nameObj, nameMTL, size, positions){
     //Load MTL
     var mtlLoader = new THREE.MTLLoader();
     mtlLoader.setResourcePath(Path);
@@ -104,7 +117,12 @@ function loadModel_objMtl(Path, nameObj, nameMTL, size, position){
         objLoader.load(nameObj, function  (object){
             scene.add(object)
             object.scale.set(size,size,size);
-            object.position.set(0,position,0);
+            if(nameObj == "personaje.obj"){
+                myPlayerMesh = object;
+                myPlayerMesh.rotation.y = Math.PI;
+            }
+            object.position.set(0,positions,0);
+            camera.position.set(object.position.x,object.position.y+6, object.position.z+20);
         });
     });
 }
@@ -223,4 +241,77 @@ function playLoseSound() {
     loseSound.play();
 }
 
-    
+function createPlayer(){
+    const geometry = new THREE.BoxGeometry( 4.5, 9.5, 5); 
+    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00, wireframe:true} ); 
+    myPlayer = new THREE.Mesh( geometry, material ); 
+    scene.add( myPlayer );
+    myPlayer.position.y =5.5;
+    myPlayer.position.z = -0.4;
+
+    myPlayer.position.set(camera.position.x,camera.position.y,camera.position.z);
+}
+
+function movementPlayer(){
+    if (input.right == 1){// Rotation Right
+        camera.rotation.y -= rootSpeed;
+        myPlayer.rotation.y -= rootSpeed;
+        myPlayerMesh.rotation.y -= rootSpeed;
+    }else if(input.left == 1){ // Rotation Left
+        camera.rotation.y += rootSpeed;
+        myPlayer.rotation.y += rootSpeed;
+        myPlayerMesh.rotation.y += rootSpeed;
+    }else if(input.up == 1){ // Move Up
+        camera.position.z -= Math.cos(camera.rotation.y) * speed;
+        camera.position.z -= Math.sin(camera.rotation.y) * speed;
+        myPlayer.position.z -= Math.cos(camera.rotation.y) * speed;
+        myPlayer.position.z -= Math.sin(camera.rotation.y) * speed;
+        myPlayerMesh.position.z -= Math.cos(camera.rotation.y) * speed;
+        myPlayerMesh.position.z -= Math.sin(camera.rotation.y) * speed;
+    }else if(input.down == 1){ // Move down
+        camera.position.z += Math.cos(camera.rotation.y) * speed;
+        camera.position.z += Math.sin(camera.rotation.y) * speed;
+        myPlayer.position.z += Math.cos(camera.rotation.y) * speed;
+        myPlayer.position.z += Math.sin(camera.rotation.y) * speed;
+        myPlayerMesh.position.z += Math.cos(camera.rotation.y) * speed;
+        myPlayerMesh.position.z += Math.sin(camera.rotation.y) * speed;
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    //console.log("Undi: "+e.keyCode);
+
+    switch(e.keyCode) {
+        case 68: // Derecha
+            input.right = 1;
+          break;
+        case 65: // Izquierda
+            input.left = 1;
+          break;
+        case 87: // Ariba
+            input.up = 1;
+          break;
+        case 83: // Abajo
+            input.down = 1;
+          break;
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    //console.log("Solte: "+e.keyCode);
+
+    switch(e.keyCode) {
+        case 68: // Derecha
+            input.right = 0;
+          break;
+        case 65: // Izquierda
+            input.left = 0;
+          break;
+        case 87: // Ariba
+            input.up = 0;
+          break;
+        case 83: // Abajo
+            input.down = 0;
+          break;
+    }
+});
